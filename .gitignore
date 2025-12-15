@@ -24,8 +24,14 @@ dist/
 # IDE / OS
 .vscode/
 .idea/
+.cursor/
 *.swp
 Thumbs.db
 Desktop.ini
 
+# Excel files (keep sample config, exclude actual data files)
+*.xlsx
+*.xls
+config.json
+!config_sample.json
 

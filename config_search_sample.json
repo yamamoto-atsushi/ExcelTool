@@ -1,0 +1,13 @@
+{
+  "search_path": "\\\\nas-server\\share\\excel_files",
+  "keywords": [
+    "キーワード1",
+    "キーワード2"
+  ],
+  "output_file": "search_results.xlsx",
+  "recursive": true,
+  "max_workers": 4,
+  "case_sensitive": false
+}
+
+

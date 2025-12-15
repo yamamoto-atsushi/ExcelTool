@@ -1,0 +1,27 @@
+{
+  "source_file": "source.xlsx",
+  "target_file": "target.xlsx",
+  "output_file": "output.xlsx",
+  "source_sheet": 0,
+  "target_sheet": 0,
+  "match_columns": [
+    {
+      "source": "キーワード列1",
+      "target": "キーワード列1"
+    },
+    {
+      "source": "キーワード列2",
+      "target": "キーワード列2"
+    }
+  ],
+  "copy_columns": [
+    {
+      "source": "コピー元列1",
+      "target": "コピー先列1"
+    },
+    {
+      "source": "コピー元列2",
+      "target": "コピー先列2"
+    }
+  ]
+}
