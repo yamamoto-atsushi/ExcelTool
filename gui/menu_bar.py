@@ -131,7 +131,7 @@ Excelファイルの内容を音声で読み上げます。
         """バージョン情報を表示"""
         import tkinter.messagebox as messagebox
         about_text = """Excel Tool Suite
-Version 1.0.0
+Version 1.0.1
 
 Excel操作のための便利ツール集
 - VLOOKUP風機能

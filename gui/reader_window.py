@@ -87,7 +87,7 @@ class ReaderWindow(tk.Toplevel):
         # 設定セクション
         settings_section = tk.Frame(
             main_container,
-            **AppleStyle.get_frame_style('surface')
+            **AppleStyle.get_frame_style('card')
         )
         settings_section.pack(fill='x', pady=(0, AppleStyle.SPACING['lg']), 
                              padx=AppleStyle.SPACING['md'], ipady=AppleStyle.SPACING['md'])
@@ -137,7 +137,7 @@ class ReaderWindow(tk.Toplevel):
         # 読み上げ設定セクション
         reading_settings_section = tk.Frame(
             main_container,
-            **AppleStyle.get_frame_style('surface')
+            **AppleStyle.get_frame_style('card')
         )
         reading_settings_section.pack(fill='x', pady=(0, AppleStyle.SPACING['lg']), 
                                      padx=AppleStyle.SPACING['md'], ipady=AppleStyle.SPACING['md'])
@@ -268,7 +268,7 @@ class ReaderWindow(tk.Toplevel):
         # 進捗表示セクション
         progress_section = tk.Frame(
             main_container,
-            **AppleStyle.get_frame_style('surface')
+            **AppleStyle.get_frame_style('card')
         )
         progress_section.pack(fill='x', pady=(0, AppleStyle.SPACING['lg']), 
                              padx=AppleStyle.SPACING['md'], ipady=AppleStyle.SPACING['md'])

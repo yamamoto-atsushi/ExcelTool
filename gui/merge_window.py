@@ -100,20 +100,22 @@ class MergeWindow(tk.Toplevel):
         tk.Label(
             input_type_frame,
             text="入力タイプ:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         type_select_frame = tk.Frame(input_type_frame, **AppleStyle.get_frame_style('surface'))
         type_select_frame.pack(fill='x')
         
+        label_style = AppleStyle.get_label_style('body', bg_color=AppleStyle.COLORS['surface'])
         Radiobutton(
             type_select_frame,
             text="フォルダを指定",
             variable=self.input_type_var,
             value='folder',
             command=self._on_input_type_changed,
-            **AppleStyle.get_label_style('body'),
-            bg=AppleStyle.COLORS['surface']
+            font=label_style.get('font'),
+            fg=label_style.get('fg'),
+            bg=label_style.get('bg')
         ).pack(side='left', padx=(0, AppleStyle.SPACING['md']))
         
         Radiobutton(
@@ -122,8 +124,9 @@ class MergeWindow(tk.Toplevel):
             variable=self.input_type_var,
             value='file',
             command=self._on_input_type_changed,
-            **AppleStyle.get_label_style('body'),
-            bg=AppleStyle.COLORS['surface']
+            font=label_style.get('font'),
+            fg=label_style.get('fg'),
+            bg=label_style.get('bg')
         ).pack(side='left')
         
         # 入力パス
@@ -134,13 +137,13 @@ class MergeWindow(tk.Toplevel):
         tk.Label(
             input_path_frame,
             text="入力パス:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         tk.Label(
             input_path_frame,
             text="統合するExcelファイルを含むフォルダ、または統合するExcelファイルを選択してください",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         input_path_input_frame = tk.Frame(input_path_frame, **AppleStyle.get_frame_style('surface'))
@@ -170,13 +173,13 @@ class MergeWindow(tk.Toplevel):
         tk.Label(
             sheet_frame,
             text="シート名（番号または名前）:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         tk.Label(
             sheet_frame,
             text="統合するシートを指定します（デフォルト: 0 = 最初のシート）",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         sheet_entry = tk.Entry(
@@ -194,15 +197,17 @@ class MergeWindow(tk.Toplevel):
         tk.Label(
             options_frame,
             text="オプション:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
+        label_style = AppleStyle.get_label_style('body', bg_color=AppleStyle.COLORS['surface'])
         recursive_check = tk.Checkbutton(
             options_frame,
             text="サブフォルダも検索する",
             variable=self.recursive_var,
-            **AppleStyle.get_label_style('body'),
-            bg=AppleStyle.COLORS['surface']
+            font=label_style.get('font'),
+            fg=label_style.get('fg'),
+            bg=label_style.get('bg')
         )
         recursive_check.pack(anchor='w')
         
@@ -210,8 +215,9 @@ class MergeWindow(tk.Toplevel):
             options_frame,
             text="すべてのファイルでヘッダーを含める（最初のファイルのみでない）",
             variable=self.include_header_var,
-            **AppleStyle.get_label_style('body'),
-            bg=AppleStyle.COLORS['surface']
+            font=label_style.get('font'),
+            fg=label_style.get('fg'),
+            bg=label_style.get('bg')
         )
         header_check.pack(anchor='w')
         
@@ -223,7 +229,7 @@ class MergeWindow(tk.Toplevel):
         tk.Label(
             output_frame,
             text="出力ファイル:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         output_input_frame = tk.Frame(output_frame, **AppleStyle.get_frame_style('surface'))

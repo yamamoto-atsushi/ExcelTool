@@ -65,7 +65,7 @@ class AppleStyle:
         """
         base_style = {
             'relief': 'flat',
-            'borderwidth': 0,
+            'borderwidth': 1,
             'cursor': 'hand2',
             'font': cls.FONTS['body_bold'],
         }
@@ -77,6 +77,10 @@ class AppleStyle:
                 'fg': '#FFFFFF',
                 'activebackground': cls.COLORS['primary_hover'],
                 'activeforeground': '#FFFFFF',
+                'highlightbackground': cls.COLORS['primary'],
+                'highlightthickness': 0,
+                'relief': 'flat',
+                'borderwidth': 0,
             }
         elif variant == 'secondary':
             return {
@@ -85,6 +89,10 @@ class AppleStyle:
                 'fg': cls.COLORS['text_primary'],
                 'activebackground': cls.COLORS['background'],
                 'activeforeground': cls.COLORS['text_primary'],
+                'highlightbackground': cls.COLORS['border'],
+                'highlightthickness': 1,
+                'relief': 'solid',
+                'borderwidth': 1,
             }
         elif variant == 'success':
             return {
@@ -93,6 +101,8 @@ class AppleStyle:
                 'fg': '#FFFFFF',
                 'activebackground': '#2AAD4A',
                 'activeforeground': '#FFFFFF',
+                'highlightbackground': cls.COLORS['success'],
+                'highlightthickness': 0,
             }
         elif variant == 'error':
             return {
@@ -101,6 +111,8 @@ class AppleStyle:
                 'fg': '#FFFFFF',
                 'activebackground': '#D32F2F',
                 'activeforeground': '#FFFFFF',
+                'highlightbackground': cls.COLORS['error'],
+                'highlightthickness': 0,
             }
         else:
             return base_style
@@ -119,25 +131,35 @@ class AppleStyle:
             'bg': cls.COLORS['surface'],
             'fg': cls.COLORS['text_primary'],
             'font': cls.FONTS['body'],
-            'highlightthickness': 0,
+            'highlightthickness': 2,
+            'highlightbackground': cls.COLORS['border'],
+            'highlightcolor': cls.COLORS['primary'],
             'insertbackground': cls.COLORS['primary'],
         }
     
     @classmethod
-    def get_label_style(cls, variant: str = 'body') -> Dict[str, Any]:
+    def get_label_style(cls, variant: str = 'body', bg_color: str = None) -> Dict[str, Any]:
         """
         ラベルスタイルを取得
         
         Args:
             variant: ラベルのバリアント ('title', 'heading', 'body', 'caption')
+            bg_color: 背景色（Noneの場合は親の背景に合わせる）
             
         Returns:
             スタイル辞書
         """
-        style = {
-            'bg': cls.COLORS['background'],
-            'fg': cls.COLORS['text_primary'],
-        }
+        # 背景色が指定されていない場合は、親の背景に合わせる（システムデフォルト）
+        if bg_color is None:
+            # システムデフォルトの背景色を使用（親ウィジェットの背景に合わせる）
+            style = {
+                'fg': cls.COLORS['text_primary'],
+            }
+        else:
+            style = {
+                'bg': bg_color,
+                'fg': cls.COLORS['text_primary'],
+            }
         
         if variant == 'title':
             style['font'] = cls.FONTS['title']
@@ -157,7 +179,7 @@ class AppleStyle:
         フレームスタイルを取得
         
         Args:
-            variant: フレームのバリアント ('background', 'surface')
+            variant: フレームのバリアント ('background', 'surface', 'card')
             
         Returns:
             スタイル辞書
@@ -166,10 +188,21 @@ class AppleStyle:
             return {
                 'bg': cls.COLORS['surface'],
                 'relief': 'flat',
+                'borderwidth': 0,
+            }
+        elif variant == 'card':
+            # カードスタイル（軽いボーダーで視覚的分離）
+            return {
+                'bg': cls.COLORS['surface'],
+                'relief': 'flat',
+                'borderwidth': 1,
+                'highlightbackground': cls.COLORS['border'],
+                'highlightthickness': 1,
             }
         else:  # background
             return {
                 'bg': cls.COLORS['background'],
                 'relief': 'flat',
+                'borderwidth': 0,
             }
 

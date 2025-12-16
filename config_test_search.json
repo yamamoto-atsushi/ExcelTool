@@ -1,0 +1,12 @@
+{
+  "search_path": "C:\\Users\\ayama\\Python\\ExcelTool\\test_search_data",
+  "keywords": [
+    "プロジェクトA",
+    "2024年度",
+    "売上"
+  ],
+  "output_file": "test_search_results.xlsx",
+  "recursive": true,
+  "max_workers": 2,
+  "case_sensitive": false
+}

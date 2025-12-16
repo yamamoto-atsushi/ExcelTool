@@ -5,8 +5,10 @@ Excelファイルを比較してVLOOKUP風の機能を提供するクラス
 
 import pandas as pd
 import sys
+import json
 from pathlib import Path
 from typing import List, Dict, Any, Tuple, Optional
+from datetime import datetime
 
 
 class ExcelVLookupProcessor:
@@ -34,6 +36,28 @@ class ExcelVLookupProcessor:
         self.target_sheet = config.get('target_sheet', 0)
         self.match_columns = config['match_columns']
         self.copy_columns = config['copy_columns']
+        
+        # #region agent log
+        log_path = Path(__file__).parent.parent / '.cursor' / 'debug.log'
+        try:
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    'sessionId': 'debug-session',
+                    'runId': 'run1',
+                    'hypothesisId': 'A,B,C,D,E',
+                    'location': 'excel_processor.py:__init__',
+                    'message': 'Processor initialized with config',
+                    'data': {
+                        'match_columns': self.match_columns,
+                        'copy_columns': self.copy_columns,
+                        'source_file': str(self.source_file),
+                        'target_file': str(self.target_file)
+                    },
+                    'timestamp': int(datetime.now().timestamp() * 1000)
+                }) + '\n')
+        except Exception:
+            pass
+        # #endregion
         
     def load_excel_files(self) -> Tuple[pd.DataFrame, pd.DataFrame]:
         """
@@ -69,6 +93,27 @@ class ExcelVLookupProcessor:
         Raises:
             ValueError: 有効なマッチング列が見つからない場合
         """
+        # #region agent log
+        log_path = Path(__file__).parent.parent / '.cursor' / 'debug.log'
+        try:
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    'sessionId': 'debug-session',
+                    'runId': 'run1',
+                    'hypothesisId': 'A,D',
+                    'location': 'excel_processor.py:match_rows:entry',
+                    'message': 'match_rows called',
+                    'data': {
+                        'source_columns': list(source_df.columns),
+                        'target_columns': list(target_df.columns),
+                        'copy_columns': self.copy_columns
+                    },
+                    'timestamp': int(datetime.now().timestamp() * 1000)
+                }) + '\n')
+        except Exception:
+            pass
+        # #endregion
+        
         result_df = target_df.copy()
         
         # マッチング用のマージキーを作成
@@ -105,6 +150,28 @@ class ExcelVLookupProcessor:
             source_col = copy_col['source']
             target_col = copy_col['target']
             
+            # #region agent log
+            try:
+                with open(log_path, 'a', encoding='utf-8') as f:
+                    f.write(json.dumps({
+                        'sessionId': 'debug-session',
+                        'runId': 'run1',
+                        'hypothesisId': 'A,D',
+                        'location': 'excel_processor.py:match_rows:before_copy',
+                        'message': 'Before copying column',
+                        'data': {
+                            'source_col': source_col,
+                            'target_col': target_col,
+                            'source_col_exists': source_col in source_df.columns,
+                            'target_col_exists': target_col in result_df.columns,
+                            'target_df_columns': list(result_df.columns)
+                        },
+                        'timestamp': int(datetime.now().timestamp() * 1000)
+                    }) + '\n')
+            except Exception:
+                pass
+            # #endregion
+            
             if source_col not in source_df.columns:
                 continue
             
@@ -118,10 +185,151 @@ class ExcelVLookupProcessor:
                 how='left'
             )
             
+            # #region agent log
+            try:
+                with open(log_path, 'a', encoding='utf-8') as f:
+                    f.write(json.dumps({
+                        'sessionId': 'debug-session',
+                        'runId': 'run1',
+                        'hypothesisId': 'A,D',
+                        'location': 'excel_processor.py:match_rows:after_merge',
+                        'message': 'After merge, before assignment',
+                        'data': {
+                            'target_col': target_col,
+                            'target_col_in_result_df': target_col in result_df.columns,
+                            'result_df_columns': list(result_df.columns),
+                            'result_df_shape': list(result_df.shape)
+                        },
+                        'timestamp': int(datetime.now().timestamp() * 1000)
+                    }) + '\n')
+            except Exception:
+                pass
+            # #endregion
+            
             # マッチした行のみコピー
             mask = result_df['_copy_value'].notna()
+            
+            # #region agent log
+            try:
+                with open(log_path, 'a', encoding='utf-8') as f:
+                    f.write(json.dumps({
+                        'sessionId': 'debug-session',
+                        'runId': 'run1',
+                        'hypothesisId': 'A,D',
+                        'location': 'excel_processor.py:match_rows:mask_check',
+                        'message': 'Mask check before assignment',
+                        'data': {
+                            'target_col': target_col,
+                            'source_col': source_col,
+                            'mask_any': mask.any(),
+                            'mask_sum': mask.sum(),
+                            'result_df_shape': list(result_df.shape),
+                            '_copy_value_exists': '_copy_value' in result_df.columns,
+                            'sample_copy_values': result_df['_copy_value'].head(5).tolist() if '_copy_value' in result_df.columns else []
+                        },
+                        'timestamp': int(datetime.now().timestamp() * 1000)
+                    }) + '\n')
+            except Exception:
+                pass
+            # #endregion
+            
             if mask.any():
+                # #region agent log
+                try:
+                    with open(log_path, 'a', encoding='utf-8') as f:
+                        f.write(json.dumps({
+                            'sessionId': 'debug-session',
+                            'runId': 'run1',
+                            'hypothesisId': 'A,D',
+                            'location': 'excel_processor.py:match_rows:before_assign',
+                            'message': 'Before assigning to target_col',
+                            'data': {
+                                'target_col': target_col,
+                                'target_col_in_result_df': target_col in result_df.columns,
+                                'result_df_columns': list(result_df.columns),
+                                'mask_count': mask.sum(),
+                                'sample_copy_values': result_df.loc[mask, '_copy_value'].head(3).tolist() if mask.any() else []
+                            },
+                            'timestamp': int(datetime.now().timestamp() * 1000)
+                        }) + '\n')
+                except Exception:
+                    pass
+                # #endregion
+                
+                # ターゲット列が存在しない場合はエラー
+                if target_col not in result_df.columns:
+                    # #region agent log
+                    try:
+                        with open(log_path, 'a', encoding='utf-8') as f:
+                            f.write(json.dumps({
+                                'sessionId': 'debug-session',
+                                'runId': 'run1',
+                                'hypothesisId': 'A,D',
+                                'location': 'excel_processor.py:match_rows:target_col_missing',
+                                'message': 'ERROR: target_col not in result_df after merge',
+                                'data': {
+                                    'target_col': target_col,
+                                    'result_df_columns': list(result_df.columns)
+                                },
+                                'timestamp': int(datetime.now().timestamp() * 1000)
+                            }) + '\n')
+                    except Exception:
+                        pass
+                    # #endregion
+                    continue
+                
+                # 代入前の値を記録
+                before_values = result_df.loc[mask, target_col].head(3).tolist() if mask.any() else []
+                copy_values = result_df.loc[mask, '_copy_value'].head(3).tolist() if mask.any() else []
+                
+                # #region agent log
+                try:
+                    with open(log_path, 'a', encoding='utf-8') as f:
+                        f.write(json.dumps({
+                            'sessionId': 'debug-session',
+                            'runId': 'run1',
+                            'hypothesisId': 'A,D',
+                            'location': 'excel_processor.py:match_rows:before_assign_values',
+                            'message': 'Values before assignment',
+                            'data': {
+                                'target_col': target_col,
+                                'source_col': source_col,
+                                'before_values_sample': before_values,
+                                'copy_values_sample': copy_values,
+                                'mask_count': mask.sum()
+                            },
+                            'timestamp': int(datetime.now().timestamp() * 1000)
+                        }) + '\n')
+                except Exception:
+                    pass
+                # #endregion
+                
                 result_df.loc[mask, target_col] = result_df.loc[mask, '_copy_value']
+                
+                # 代入後の値を記録
+                after_values = result_df.loc[mask, target_col].head(3).tolist() if mask.any() else []
+                
+                # #region agent log
+                try:
+                    with open(log_path, 'a', encoding='utf-8') as f:
+                        f.write(json.dumps({
+                            'sessionId': 'debug-session',
+                            'runId': 'run1',
+                            'hypothesisId': 'A,D',
+                            'location': 'excel_processor.py:match_rows:after_assign_values',
+                            'message': 'Values after assignment',
+                            'data': {
+                                'target_col': target_col,
+                                'source_col': source_col,
+                                'after_values_sample': after_values,
+                                'assigned_count': mask.sum()
+                            },
+                            'timestamp': int(datetime.now().timestamp() * 1000)
+                        }) + '\n')
+                except Exception:
+                    pass
+                # #endregion
+                
                 matched_count = max(matched_count, mask.sum())
             
             # 一時列を削除
@@ -129,6 +337,25 @@ class ExcelVLookupProcessor:
         
         # マージキーを削除
         result_df = result_df.drop(columns=['_merge_key'])
+        
+        # #region agent log
+        try:
+            with open(log_path, 'a', encoding='utf-8') as f:
+                f.write(json.dumps({
+                    'sessionId': 'debug-session',
+                    'runId': 'run1',
+                    'hypothesisId': 'A,D',
+                    'location': 'excel_processor.py:match_rows:exit',
+                    'message': 'match_rows completed',
+                    'data': {
+                        'final_columns': list(result_df.columns),
+                        'matched_count': matched_count
+                    },
+                    'timestamp': int(datetime.now().timestamp() * 1000)
+                }) + '\n')
+        except Exception:
+            pass
+        # #endregion
         
         return result_df, matched_count
     

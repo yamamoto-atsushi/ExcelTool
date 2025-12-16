@@ -6,24 +6,25 @@ VLOOKUP風機能専用のウィンドウ
 import tkinter as tk
 from tkinter import messagebox, ttk
 from pathlib import Path
-from typing import Optional, Dict, Any, Tuple
+from typing import Optional, Dict, Any, Tuple, Callable
 import threading
 
 from core import ExcelVLookupProcessor
 from utils import ConfigManager
 from gui.styles import AppleStyle
-from gui.components import FileSelector, ColumnMapper, ProgressIndicator
+from gui.components import FileSelector, ColumnMapper, ProgressIndicator, NavigationBar
 
 
 class VLookupWindow(tk.Toplevel):
     """メインウィンドウクラス"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, on_home_click: Optional[Callable] = None):
         """
         初期化
         
         Args:
             parent: 親ウィンドウ（Noneの場合は独立ウィンドウ）
+            on_home_click: ホームに戻るボタンのコールバック
         """
         if parent is None:
             super().__init__()
@@ -31,7 +32,7 @@ class VLookupWindow(tk.Toplevel):
             super().__init__(parent)
         
         self.title("Excel VLOOKUP Tool")
-        self.geometry("900x700")
+        self.geometry("900x750")
         self.configure(bg=AppleStyle.COLORS['background'])
         
         # ウィンドウを中央に配置
@@ -40,6 +41,7 @@ class VLookupWindow(tk.Toplevel):
         # 変数
         self.source_columns = []
         self.target_columns = []
+        self.on_home_click = on_home_click
         
         # UI作成
         self._create_widgets()
@@ -58,6 +60,13 @@ class VLookupWindow(tk.Toplevel):
     
     def _create_widgets(self):
         """ウィジェットを作成"""
+        # ナビゲーションバー（常に表示）
+        nav_bar = NavigationBar(
+            self, 
+            on_home_click=self.on_home_click if self.on_home_click else self._default_home_action
+        )
+        nav_bar.pack(fill='x', pady=(AppleStyle.SPACING['sm'], AppleStyle.SPACING['sm']))
+        
         # メインコンテナ
         main_container = tk.Frame(
             self,
@@ -154,13 +163,13 @@ class VLookupWindow(tk.Toplevel):
         tk.Label(
             source_label_frame,
             text="① ソースファイル（参照元）",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left')
         
         tk.Label(
             source_label_frame,
             text="データをコピーする元のファイル",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left', padx=(AppleStyle.SPACING['sm'], 0))
         
         self.source_selector = FileSelector(
@@ -181,13 +190,13 @@ class VLookupWindow(tk.Toplevel):
         tk.Label(
             target_label_frame,
             text="② ターゲットファイル（更新対象）",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left')
         
         tk.Label(
             target_label_frame,
             text="データを更新する対象のファイル",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left', padx=(AppleStyle.SPACING['sm'], 0))
         
         self.target_selector = FileSelector(
@@ -208,13 +217,13 @@ class VLookupWindow(tk.Toplevel):
         tk.Label(
             output_label_frame,
             text="③ 出力ファイル",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left')
         
         tk.Label(
             output_label_frame,
             text="処理結果を保存するファイル",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left', padx=(AppleStyle.SPACING['sm'], 0))
         
         self.output_selector = FileSelector(
@@ -241,14 +250,14 @@ class VLookupWindow(tk.Toplevel):
         mapping_section_title = tk.Label(
             mapping_title_frame,
             text="ステップ2: 列のマッピングを設定",
-            **AppleStyle.get_label_style('heading')
+            **AppleStyle.get_label_style('heading', bg_color=AppleStyle.COLORS['surface'])
         )
         mapping_section_title.pack(anchor='w')
         
         mapping_section_desc = tk.Label(
             mapping_title_frame,
             text="どの列でマッチングし、どの列をコピーするか設定してください",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         )
         mapping_section_desc.pack(anchor='w', pady=(AppleStyle.SPACING['xs'], 0))
         
@@ -263,13 +272,13 @@ class VLookupWindow(tk.Toplevel):
         tk.Label(
             match_label_frame,
             text="マッチング列",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left')
         
         tk.Label(
             match_label_frame,
             text="（2つのファイルで一致させる列）",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left', padx=(AppleStyle.SPACING['sm'], 0))
         
         self.match_mapper = ColumnMapper(
@@ -292,13 +301,13 @@ class VLookupWindow(tk.Toplevel):
         tk.Label(
             copy_label_frame,
             text="コピー列",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left')
         
         tk.Label(
             copy_label_frame,
             text="（ソースからターゲットにコピーする列）",
-            **AppleStyle.get_label_style('caption')
+            **AppleStyle.get_label_style('caption', bg_color=AppleStyle.COLORS['surface'])
         ).pack(side='left', padx=(AppleStyle.SPACING['sm'], 0))
         
         self.copy_mapper = ColumnMapper(
@@ -461,6 +470,10 @@ class VLookupWindow(tk.Toplevel):
         self.progress.hide()
         self.execute_btn.config(state='normal')
         messagebox.showerror("エラー", f"処理中にエラーが発生しました:\n{error_message}")
+    
+    def _default_home_action(self):
+        """デフォルトのホームアクション（コールバックがない場合）"""
+        self.destroy()
     
     def _on_closing(self):
         """ウィンドウを閉じるときの処理"""

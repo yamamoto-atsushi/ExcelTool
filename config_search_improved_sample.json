@@ -1,0 +1,15 @@
+{
+  "search_path": "\\\\nas-server\\share\\excel_files",
+  "keywords": [
+    "プロジェクトA",
+    "2024年度"
+  ],
+  "output_file": "search_results_improved.xlsx",
+  "recursive": true,
+  "max_workers": 4,
+  "case_sensitive": false,
+  "use_regex": false,
+  "match_mode": "any",
+  "include_details": true,
+  "log_file": "search_log.txt"
+}

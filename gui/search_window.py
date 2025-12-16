@@ -6,22 +6,23 @@ Excelファイルキーワード検索機能専用のウィンドウ
 import tkinter as tk
 from tkinter import messagebox, ttk, filedialog
 from pathlib import Path
-from typing import Optional, Dict, Any, List, Tuple
+from typing import Optional, Dict, Any, List, Tuple, Callable
 import threading
 
 from gui.styles import AppleStyle
-from gui.components import ProgressIndicator
+from gui.components import ProgressIndicator, NavigationBar
 
 
 class SearchWindow(tk.Toplevel):
     """キーワード検索ウィンドウ"""
     
-    def __init__(self, parent=None):
+    def __init__(self, parent=None, on_home_click: Optional[Callable] = None):
         """
         初期化
         
         Args:
             parent: 親ウィンドウ（Noneの場合は独立ウィンドウ）
+            on_home_click: ホームに戻るボタンのコールバック
         """
         if parent is None:
             super().__init__()
@@ -29,11 +30,13 @@ class SearchWindow(tk.Toplevel):
             super().__init__(parent)
         
         self.title("Excel キーワード検索")
-        self.geometry("700x600")
+        self.geometry("700x650")
         self.configure(bg=AppleStyle.COLORS['background'])
         
         # ウィンドウを中央に配置
         self._center_window()
+        
+        self.on_home_click = on_home_click
         
         # UI作成
         self._create_widgets()
@@ -52,6 +55,13 @@ class SearchWindow(tk.Toplevel):
     
     def _create_widgets(self):
         """ウィジェットを作成"""
+        # ナビゲーションバー（常に表示）
+        nav_bar = NavigationBar(
+            self, 
+            on_home_click=self.on_home_click if self.on_home_click else self._default_home_action
+        )
+        nav_bar.pack(fill='x', pady=(AppleStyle.SPACING['sm'], AppleStyle.SPACING['sm']))
+        
         # メインコンテナ
         main_container = tk.Frame(
             self,
@@ -92,7 +102,7 @@ class SearchWindow(tk.Toplevel):
         tk.Label(
             path_frame,
             text="検索フォルダ:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         path_input_frame = tk.Frame(path_frame, **AppleStyle.get_frame_style('surface'))
@@ -122,7 +132,7 @@ class SearchWindow(tk.Toplevel):
         tk.Label(
             keywords_frame,
             text="検索キーワード（1行に1つ）:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         self.keywords_text = tk.Text(
@@ -141,7 +151,7 @@ class SearchWindow(tk.Toplevel):
         tk.Label(
             output_frame,
             text="出力ファイル:",
-            **AppleStyle.get_label_style('body_bold')
+            **AppleStyle.get_label_style('body_bold', bg_color=AppleStyle.COLORS['surface'])
         ).pack(anchor='w', pady=(0, AppleStyle.SPACING['xs']))
         
         output_input_frame = tk.Frame(output_frame, **AppleStyle.get_frame_style('surface'))
@@ -281,6 +291,10 @@ class SearchWindow(tk.Toplevel):
         self.progress.hide()
         self.execute_btn.config(state='normal')
         messagebox.showerror("エラー", f"処理中にエラーが発生しました:\n{error_message}")
+    
+    def _default_home_action(self):
+        """デフォルトのホームアクション（コールバックがない場合）"""
+        self.destroy()
     
     def _on_closing(self):
         """ウィンドウを閉じるときの処理"""

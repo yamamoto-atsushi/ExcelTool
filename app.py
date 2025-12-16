@@ -6,9 +6,16 @@ Excel Tool Suite - Main Entry Point
 """
 
 import sys
+import os
 import tkinter as tk
 from pathlib import Path
 from typing import Optional
+
+# Windowsでコンソールウィンドウを非表示にする
+if sys.platform == 'win32':
+    import ctypes
+    # コンソールウィンドウを非表示にする
+    ctypes.windll.user32.ShowWindow(ctypes.windll.kernel32.GetConsoleWindow(), 0)
 
 # プロジェクトルートをパスに追加
 project_root = Path(__file__).parent
@@ -126,7 +133,7 @@ class MainApplication:
             with open(r'c:\Users\ayama\Python\ExcelTool\.cursor\debug.log', 'a', encoding='utf-8') as f:
                 f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"app.py:90","message":"creating VLookupWindow","data":{},"timestamp":int(__import__('time').time()*1000)})+'\n')
             # #endregion
-            self.current_window = VLookupWindow(self.root)
+            self.current_window = VLookupWindow(self.root, on_home_click=self.show_launcher)
             self.current_window.protocol("WM_DELETE_WINDOW", self._on_window_close)
             # #region agent log
             with open(r'c:\Users\ayama\Python\ExcelTool\.cursor\debug.log', 'a', encoding='utf-8') as f:
@@ -138,7 +145,7 @@ class MainApplication:
             with open(r'c:\Users\ayama\Python\ExcelTool\.cursor\debug.log', 'a', encoding='utf-8') as f:
                 f.write(json.dumps({"sessionId":"debug-session","runId":"run1","hypothesisId":"C","location":"app.py:94","message":"creating SearchWindow","data":{},"timestamp":int(__import__('time').time()*1000)})+'\n')
             # #endregion
-            self.current_window = SearchWindow(self.root)
+            self.current_window = SearchWindow(self.root, on_home_click=self.show_launcher)
             self.current_window.protocol("WM_DELETE_WINDOW", self._on_window_close)
             # #region agent log
             with open(r'c:\Users\ayama\Python\ExcelTool\.cursor\debug.log', 'a', encoding='utf-8') as f:
