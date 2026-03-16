@@ -18,14 +18,12 @@ import json
 import argparse
 import sys
 from pathlib import Path
-from typing import List, Dict, Any, Optional, Tuple
+from typing import List, Dict, Any, Optional
 from datetime import datetime
-import concurrent.futures
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import time
 import traceback
 import re
-import os
 
 
 class ExcelSearchToolImproved:
@@ -127,7 +125,7 @@ class ExcelSearchToolImproved:
         if self.use_regex:
             try:
                 flags = 0 if self.case_sensitive else re.IGNORECASE
-                return bool(re.search(keyword, text))
+                return bool(re.search(keyword, text, flags))
             except re.error:
                 # 正規表現エラーの場合は通常の文字列検索にフォールバック
                 return keyword in text
@@ -165,48 +163,45 @@ class ExcelSearchToolImproved:
             
             try:
                 # Excelファイルの全シートを読み込んで検索
-                excel_file = pd.ExcelFile(file_path, engine='openpyxl')
-                
-                for sheet_name in excel_file.sheet_names:
-                    try:
-                        df = pd.read_excel(excel_file, sheet_name=sheet_name, header=None)
-                        
-                        # 全セルを検索
-                        for keyword in self.keywords:
-                            if keyword in matched_keywords and self.match_mode == 'any':
-                                continue  # 既に見つかっているキーワードはスキップ（anyモードの場合）
+                with pd.ExcelFile(file_path, engine='openpyxl') as excel_file:
+                    for sheet_name in excel_file.sheet_names:
+                        try:
+                            df = pd.read_excel(excel_file, sheet_name=sheet_name, header=None)
                             
-                            # データフレーム全体を文字列として検索
-                            for row_idx, row in df.iterrows():
-                                for col_idx, val in enumerate(row):
-                                    val_str = str(val)
-                                    if val_str == 'nan' or pd.isna(val):
-                                        continue
-                                    
-                                    if self.match_keyword(val_str, keyword):
-                                        matched_keywords.add(keyword)
+                            # 全セルを検索
+                            for keyword in self.keywords:
+                                if keyword in matched_keywords and self.match_mode == 'any':
+                                    continue  # 既に見つかっているキーワードはスキップ（anyモードの場合）
+                                
+                                # データフレーム全体を文字列として検索
+                                for row_idx, row in df.iterrows():
+                                    for col_idx, val in enumerate(row):
+                                        val_str = str(val)
+                                        if val_str == 'nan' or pd.isna(val):
+                                            continue
                                         
-                                        if self.include_details:
-                                            keyword_matches[keyword].append({
-                                                'sheet': sheet_name,
-                                                'row': int(row_idx) + 1,  # 1-based index
-                                                'column': col_idx + 1,  # 1-based index
-                                                'cell_value': val_str[:100]  # 最初の100文字
-                                            })
-                                        else:
-                                            # 詳細情報が不要な場合でも、1つでも見つかれば記録
-                                            keyword_matches[keyword].append({})
+                                        if self.match_keyword(val_str, keyword):
+                                            matched_keywords.add(keyword)
+                                            
+                                            if self.include_details:
+                                                keyword_matches[keyword].append({
+                                                    'sheet': sheet_name,
+                                                    'row': int(row_idx) + 1,  # 1-based index
+                                                    'column': col_idx + 1,  # 1-based index
+                                                    'cell_value': val_str[:100]  # 最初の100文字
+                                                })
+                                            else:
+                                                # 詳細情報が不要な場合でも、1つでも見つかれば記録
+                                                keyword_matches[keyword].append({})
+                                            break  # このキーワードが見つかったので次のキーワードへ
+                                        
+                                    if keyword in matched_keywords:
                                         break  # このキーワードが見つかったので次のキーワードへ
-                                    
-                                if keyword in matched_keywords:
-                                    break  # このキーワードが見つかったので次のキーワードへ
-                                    
-                    except Exception as e:
-                        # シートの読み込みエラーはスキップして続行
-                        self.log(f"シート '{sheet_name}' の読み込みエラー ({file_path}): {e}", 'WARN')
-                        continue
-                
-                excel_file.close()
+                                        
+                        except Exception as e:
+                            # シートの読み込みエラーはスキップして続行
+                            self.log(f"シート '{sheet_name}' の読み込みエラー ({file_path}): {e}", 'WARN')
+                            continue
                 
             except Exception as e:
                 # Excelファイルの読み込みエラー
@@ -544,7 +539,5 @@ def main():
 
 if __name__ == '__main__':
     main()
-
-
 
 
